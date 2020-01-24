@@ -1,0 +1,22 @@
+<script>
+var timer = setInterval(function(){
+ 	if(typeof($) != 'undefined') {
+ 		clearInterval(timer);
+ 		$(document).on("change", "#tiggerrulesdropdown", function(){
+ 		    var thisObjVal = $(this).val();
+ 		    if(thisObjVal != ''){
+ 	 		    var thisObj = $(this);
+ 	 		    thisObj.closest(".ProductDetailtable").find("tr.minortriggerrowrules").hide();
+ 	 		    thisObj.closest(".ProductDetailtable").find("tr."+thisObjVal).show();
+ 		    }else{
+ 		    	thisObj.closest(".ProductDetailtable").find("tr.minortriggerrowrules").hide();
+ 		    }
+
+ 		});
+ 	}
+ });
+
+</script>
+
+777069
+777047
