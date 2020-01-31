@@ -1,0 +1,23 @@
+SELECT 
+SUM(oi.ord_item_doctor_fees/om.om_exchange_rate) as doctor_fees, 
+SUM(oi.ord_item_vendor_fees/om.om_exchange_rate) as vendor_fees, 
+SUM(oi.ord_item_shipping_cost/om.om_exchange_rate) as shipping_cost, 
+COUNT(CASE WHEN om.om_ord_type = 'N' THEN 1 ELSE NULL END) AS neworders, 
+COUNT(CASE WHEN om.om_ord_type = 'R' THEN 1 ELSE NULL END) AS reorders, 
+SUM(ct.ct_amount_gbp) as Total_Sales, 
+COUNT(oi.ord_item_id) as total_orders, 
+ SUM(CASE WHEN oi.ord_item_discount_type = 'P' THEN ((oi.ord_item_price / om.om_exchange_rate) * oi.ord_item_discount) / 100 ELSE (oi.ord_item_discount/om.om_exchange_rate) END) as discount, 
+count(CASE WHEN om.om_refund_amount <> 0 then 1 else NULL END) as refund_orders, "lan"."language_name", "lan"."language_id", "lan"."language_flag_img", "lan"."language_short_name",SUM(total_cost)
+
+ 
+FROM "order_items" "oi" 
+INNER JOIN "order_master" "om" ON om.om_id = oi.ord_item_om_id 
+LEFT JOIN LATERAL ((SELECT SUM((osdd.osdd_qty * osdd.osdd_cost)/om.om_exchange_rate) as total_cost FROM order_stock_dispense osd JOIN 
+order_stock_dispense_details osdd ON osdd.osdd_osd_id=osd.osd_id
+WHERE osd.osd_ord_item_id=oi.ord_item_id)) t2 ON true
+INNER JOIN "domains" "dom" ON dom.domain_id = om.om_domain_id 
+INNER JOIN "customer_transactions" "ct" ON ct.ct_om_order_id= om.om_order_id 
+INNER JOIN "language" "lan" ON dom.domain_language_id = lan.language_id 
+WHERE ("lan"."language_status"='Y') AND (ct.ct_payment_date BETWEEN '2020-01-29 00:00:00' AND '2020-01-30 00:00:00') AND ("ct"."ct_type"='D') AND ("ct"."ct_payment_type"='P') AND ("ct"."ct_payment_status"='P') AND ("ct"."ct_is_test"='0') AND ("om"."om_current_status" <> '0') GROUP BY "lan"."language_id"
+
+{"prod_feature_name": "", "selectedProductID": "", "buy_now_off_option": "CE", "prod_feature_descr": "", "show_prod_alternative": "Y"}
